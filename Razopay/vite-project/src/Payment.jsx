@@ -1,10 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 
 const Payment = () => {
+  useEffect(() => {
+    // Dynamically load the Razorpay script
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    // Clean up the script when component is unmounted
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const handlePayment = async () => {
     try {
-      const amount = 500; // Amount in INR
+      const amount = 1; // Amount in INR
 
       // Create order
       const { data } = await axios.post("http://localhost:5000/api/payment/create-order", { amount });
@@ -16,7 +29,6 @@ const Payment = () => {
 
       const { order } = data;
 
-      
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Razorpay Key from .env
         amount: order.amount,
@@ -47,8 +59,13 @@ const Payment = () => {
         },
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      // Check if Razorpay script is loaded
+      if (window.Razorpay) {
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        console.error("Razorpay script not loaded.");
+      }
     } catch (error) {
       console.error("Payment error:", error);
     }
@@ -57,7 +74,7 @@ const Payment = () => {
   return (
     <div>
       <h2>Razorpay Payment</h2>
-      <button onClick={handlePayment}>Pay ₹500</button>
+      <button onClick={handlePayment}>Pay ₹1</button>
     </div>
   );
 };
