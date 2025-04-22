@@ -16,6 +16,7 @@ const Payment = () => {
 
       const { order } = data;
 
+      
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Razorpay Key from .env
         amount: order.amount,
